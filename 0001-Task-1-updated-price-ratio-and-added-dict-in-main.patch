@@ -1,0 +1,72 @@
+From bef29e29cc1fc103ab15725ec87eed34adbb80a3 Mon Sep 17 00:00:00 2001
+From: Prayag <prayagbhatt2003@gmail.com>
+Date: Sun, 27 Aug 2023 14:13:35 +0530
+Subject: [PATCH] Task #1 - updated price, ratio and added dict in main
+
+---
+ client3.py                                     |  9 ++++++---
+ .../pyproject_hooks/_in_process/__init__.py    | 18 ++++++++++++++++++
+ 2 files changed, 24 insertions(+), 3 deletions(-)
+ create mode 100644 myenv/Lib/site-packages/pip/_vendor/pyproject_hooks/_in_process/__init__.py
+
+diff --git a/client3.py b/client3.py
+index 3fc09b7..f3bbc22 100644
+--- a/client3.py
++++ b/client3.py
+@@ -35,14 +35,14 @@ def getDataPoint(quote):
+     stock = quote['stock']
+     bid_price = float(quote['top_bid']['price'])
+     ask_price = float(quote['top_ask']['price'])
+-    price = bid_price
++    price = (bid_price+ask_price)/2
+     return stock, bid_price, ask_price, price
+ 
+ 
+ def getRatio(price_a, price_b):
+     """ Get ratio of price_a and price_b """
+     """ ------------- Update this function ------------- """
+-    return 1
++    return price_a/price_b
+ 
+ 
+ # Main
+@@ -52,8 +52,11 @@ if __name__ == "__main__":
+         quotes = json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
+ 
+         """ ----------- Update to get the ratio --------------- """
++        prices={} # creating a prices dictionary
+         for quote in quotes:
+             stock, bid_price, ask_price, price = getDataPoint(quote)
++            prices[stock] = price
+             print("Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price, price))
+ 
+-        print("Ratio %s" % getRatio(price, price))
++        print("Ratio %s" % getRatio(prices["ABC"], prices["DEF"]))
++
+diff --git a/myenv/Lib/site-packages/pip/_vendor/pyproject_hooks/_in_process/__init__.py b/myenv/Lib/site-packages/pip/_vendor/pyproject_hooks/_in_process/__init__.py
+new file mode 100644
+index 0000000..917fa06
+--- /dev/null
++++ b/myenv/Lib/site-packages/pip/_vendor/pyproject_hooks/_in_process/__init__.py
+@@ -0,0 +1,18 @@
++"""This is a subpackage because the directory is on sys.path for _in_process.py
++
++The subpackage should stay as empty as possible to avoid shadowing modules that
++the backend might import.
++"""
++
++import importlib.resources as resources
++
++try:
++    resources.files
++except AttributeError:
++    # Python 3.8 compatibility
++    def _in_proc_script_path():
++        return resources.path(__package__, '_in_process.py')
++else:
++    def _in_proc_script_path():
++        return resources.as_file(
++            resources.files(__package__).joinpath('_in_process.py'))
+-- 
+2.39.0.windows.2
+
